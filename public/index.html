@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>💬 Secure Real-Time Chat</title>
+  <style>
+    body { font-family: sans-serif; background: #202020; color: #fff; text-align: center; padding: 20px; }
+    input, button { margin: 5px; padding: 10px; width: 260px; border-radius: 5px; border: none; }
+    #chat { margin-top: 20px; max-width: 300px; height: 250px; overflow-y: auto; background: #303030; padding: 10px; border-radius: 5px; text-align: left; }
+    .msg { margin-bottom: 5px; }
+  </style>
+</head>
+<body>
+  <h2>🔐 Secure Chat</h2>
+  <input id="room" placeholder="Enter Room Code" />
+  <button onclick="joinRoom()">Join Room</button>
+  <div id="chat"></div>
+  <input id="msg" placeholder="Type message…" onkeydown="if(event.key==='Enter') sendMessage()" />
+  <button onclick="sendMessage()">Send</button>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io(); // For Render deployment will auto connect
+    let room = '';
+
+    function joinRoom() {
+      room = document.getElementById('room').value.trim();
+      if (room) {
+        socket.emit('join-room', room);
+        appendMsg(`✅ Joined room: ${room}`);
+      }
+    }
+
+    function sendMessage() {
+      const txt = document.getElementById('msg').value.trim();
+      if (txt && room) {
+        socket.emit('send-message', { room, message: txt });
+        appendMsg(`🧑: ${txt}`);
+        document.getElementById('msg').value = '';
+      }
+    }
+
+    socket.on('receive-message', msg => appendMsg(`👤: ${msg}`));
+
+    function appendMsg(text) {
+      const chat = document.getElementById('chat');
+      const div = document.createElement('div');
+      div.className = 'msg';
+      div.textContent = text;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+  </script>
+</body>
+</html>
