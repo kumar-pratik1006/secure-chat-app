@@ -9,14 +9,14 @@ const io = new Server(server, {
   cors: { origin: '*' }
 });
 
-// Serve static frontend
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Socket.io logic
 io.on('connection', socket => {
   socket.on('join-room', room => socket.join(room));
+
   socket.on('send-message', ({ room, message }) => {
-    io.to(room).emit('receive-message', message);
+    socket.emit('receive-message', { message, self: true });
+    socket.to(room).emit('receive-message', { message, self: false });
   });
 });
 
