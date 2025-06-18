@@ -9,14 +9,27 @@ const io = new Server(server, {
   cors: { origin: '*' }
 });
 
+// Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+let onlineUsers = 0;
+
+// Socket.io logic
 io.on('connection', socket => {
-  socket.on('join-room', room => socket.join(room));
+  onlineUsers++;
+  io.emit('update-user-count', onlineUsers);
+
+  socket.on('join-room', room => {
+    socket.join(room);
+  });
 
   socket.on('send-message', ({ room, message }) => {
-    socket.emit('receive-message', { message, self: true });
-    socket.to(room).emit('receive-message', { message, self: false });
+    io.to(room).emit('receive-message', message);
+  });
+
+  socket.on('disconnect', () => {
+    onlineUsers = Math.max(0, onlineUsers - 1);
+    io.emit('update-user-count', onlineUsers);
   });
 });
 
