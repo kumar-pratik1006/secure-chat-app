@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🔐 Secure Chat</title>
   <style>
     * { box-sizing: border-box; }
@@ -98,12 +98,29 @@
       background: #0984e3;
       color: white;
     }
+    #preview {
+      padding: 6px;
+      background: #222;
+      display: none;
+      text-align: center;
+    }
+    #preview img {
+      max-height: 150px;
+      border-radius: 8px;
+    }
+    #usersOnline {
+      background: #2c3e50;
+      padding: 4px;
+      font-size: 14px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
 
   <header>🔐 Secure Chat</header>
   <div id="roomStatus">Joined room: <span id="joinedRoomId"></span></div>
+  <div id="usersOnline">🟢 Active users: <span id="onlineCount">0</span></div>
 
   <div class="room-join" id="roomJoin">
     Room ID: <input id="roomInput" placeholder="Type room..." />
@@ -112,10 +129,12 @@
 
   <div id="chatBox"></div>
 
+  <div id="preview"></div>
+
   <div class="input-panel">
     <input type="text" id="msgInput" placeholder="Message..." />
     <label for="fileInput" class="icon-btn">📎</label>
-    <input type="file" id="fileInput" />
+    <input type="file" id="fileInput" onchange="previewMedia()" />
     <button onclick="sendGIF()" class="icon-btn">🎞️</button>
     <button onclick="sendMsg()" class="icon-btn">📤</button>
   </div>
