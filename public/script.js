@@ -27,9 +27,3 @@ function logMsg(msg, self = false) {
   box.appendChild(div);
   box.scrollTop = box.scrollHeight;
 }
-
-const socket = io(); // Already defined in your script
-
-socket.on('update-user-count', count => {
-  document.getElementById('userCount').textContent = `${count} online`;
-});
