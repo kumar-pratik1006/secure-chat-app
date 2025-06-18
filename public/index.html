@@ -18,6 +18,14 @@
       font-size: 20px;
       font-weight: bold;
     }
+    #roomStatus {
+      background: #2d3436;
+      text-align: center;
+      padding: 6px;
+      font-size: 14px;
+      color: #a29bfe;
+      display: none;
+    }
     #chatBox {
       flex: 1;
       overflow-y: auto;
@@ -33,14 +41,8 @@
       word-wrap: break-word;
       line-height: 1.4;
     }
-    .self {
-      align-self: flex-end;
-      background: #2ecc71;
-    }
-    .other {
-      align-self: flex-start;
-      background: #3498db;
-    }
+    .self { align-self: flex-end; background: #2ecc71; }
+    .other { align-self: flex-start; background: #3498db; }
     .msg img {
       max-width: 200px;
       border-radius: 8px;
@@ -52,26 +54,28 @@
     }
     .input-panel {
       background: #1e1e1e;
-      padding: 10px;
+      padding: 8px;
       display: flex;
       gap: 6px;
-      flex-wrap: wrap;
+      align-items: center;
     }
-    .input-panel input[type="text"],
-    .input-panel input[type="file"] {
+    .input-panel input[type="text"] {
       flex: 1;
       padding: 8px;
       border-radius: 6px;
       border: none;
       font-size: 15px;
     }
-    .input-panel button {
+    .input-panel input[type="file"] {
+      display: none;
+    }
+    .icon-btn {
       background: #00cec9;
+      color: white;
       border: none;
-      color: #fff;
-      padding: 8px 12px;
-      font-size: 15px;
+      padding: 8px;
       border-radius: 6px;
+      font-size: 16px;
       cursor: pointer;
     }
     .room-join {
@@ -99,8 +103,9 @@
 <body>
 
   <header>🔐 Secure Chat</header>
+  <div id="roomStatus">Joined room: <span id="joinedRoomId"></span></div>
 
-  <div class="room-join">
+  <div class="room-join" id="roomJoin">
     Room ID: <input id="roomInput" placeholder="Type room..." />
     <button onclick="joinRoom()">Join</button>
   </div>
@@ -109,9 +114,10 @@
 
   <div class="input-panel">
     <input type="text" id="msgInput" placeholder="Message..." />
+    <label for="fileInput" class="icon-btn">📎</label>
     <input type="file" id="fileInput" />
-    <button onclick="sendMsg()">Send</button>
-    <button onclick="sendGIF()">GIF</button>
+    <button onclick="sendGIF()" class="icon-btn">🎞️</button>
+    <button onclick="sendMsg()" class="icon-btn">📤</button>
   </div>
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
