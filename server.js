@@ -1,30 +1,24 @@
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+const path = require('path');
 
-const socket = io();
-let room = '';
-
-function joinRoom() {
-  room = document.getElementById('room').value;
-  if (room.trim() === '') return;
-  socket.emit('join-room', room);
-  logMsg('✅ Joined room: ' + room);
-}
-
-function sendMsg() {
-  const msg = document.getElementById('msgInput').value;
-  if (msg.trim() === '') return;
-  socket.emit('send-message', { room, message: msg });
-  document.getElementById('msgInput').value = '';
-}
-
-socket.on('receive-message', ({ message, self }) => {
-  logMsg((self ? '🧍 You' : '👤 Stranger') + ': ' + message, self);
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: { origin: '*' }
 });
 
-function logMsg(msg, self = false) {
-  const box = document.getElementById('chatBox');
-  const div = document.createElement('div');
-  div.textContent = msg;
-  div.className = self ? 'msg-self' : 'msg-other';
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
-}
+app.use(express.static(path.join(__dirname, 'public')));
+
+io.on('connection', socket => {
+  socket.on('join-room', room => socket.join(room));
+
+  socket.on('send-message', ({ room, message }) => {
+    socket.emit('receive-message', { message, self: true });
+    socket.to(room).emit('receive-message', { message, self: false });
+  });
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
