@@ -64,14 +64,5 @@ function previewMedia() {
   reader.readAsDataURL(file);
 }
 
-function sendGIF() {
-  const gif = prompt("Enter GIF URL:");
-  if (gif) {
-    const msg = { type: 'image', data: gif };
-    socket.emit('send-message', { room: currentRoom, message: msg });
-    appendMsg(msg, true);
-  }
-}
-
 socket.on('receive-message', msg => appendMsg(msg));
 socket.on('update-users', count => onlineCount.textContent = count);
