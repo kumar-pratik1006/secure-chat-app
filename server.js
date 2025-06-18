@@ -8,7 +8,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: { origin: '*' },
-  pingTimeout: 60000, // 60 sec timeout to prevent auto disconnect
+  pingTimeout: 600000, // 600 sec timeout to prevent auto disconnect
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
