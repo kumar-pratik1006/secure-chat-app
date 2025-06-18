@@ -12,11 +12,12 @@ const io = new Server(server, {
 app.use(express.static(path.join(__dirname, 'public')));
 
 io.on('connection', socket => {
-  socket.on('join-room', room => socket.join(room));
+  socket.on('join-room', room => {
+    socket.join(room);
+  });
 
-  socket.on('send-message', ({ room, message }) => {
-    socket.emit('receive-message', { message, self: true });
-    socket.to(room).emit('receive-message', { message, self: false });
+  socket.on('send-message', data => {
+    io.to(data.room).emit('receive-message', data);
   });
 });
 
