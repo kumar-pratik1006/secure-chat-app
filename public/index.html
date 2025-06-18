@@ -1,51 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🔐 Secure Chat</title>
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: Arial, sans-serif; background: #111; color: #fff; height: 100vh; display: flex; flex-direction: column; }
-    .header { padding: 10px; background: #222; text-align: center; font-size: 20px; }
-    .room-join { padding: 10px; text-align: center; }
-    .room-status { display: none; text-align: center; margin-top: 10px; color: #0f0; }
-    .chat-box { flex: 1; padding: 10px; overflow-y: auto; background: #181818; }
-    .input-area { display: flex; flex-direction: column; padding: 10px; background: #222; gap: 10px; }
-    input, button { padding: 10px; font-size: 16px; border: none; border-radius: 4px; }
-    input[type="file"] { background: #333; color: #ccc; }
-    .msg { margin: 5px 0; }
-    .self { color: #0f0; }
-    .other { color: #0af; }
-    .preview img { max-width: 100px; margin-top: 5px; }
-    .footer { text-align: center; font-size: 12px; color: #aaa; padding: 5px; }
+    body {
+      margin: 0; font-family: 'Segoe UI', sans-serif;
+      background: #121212; color: #fff;
+      display: flex; flex-direction: column; height: 100vh;
+    }
+    header {
+      background: #1e1e1e;
+      padding: 10px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    #roomStatus {
+      background: #2d3436;
+      text-align: center;
+      padding: 6px;
+      font-size: 14px;
+      color: #a29bfe;
+      display: none;
+    }
+    #chatBox {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    .msg {
+      max-width: 75%;
+      padding: 10px;
+      margin: 6px 0;
+      border-radius: 10px;
+      word-wrap: break-word;
+      line-height: 1.4;
+    }
+    .self { align-self: flex-end; background: #2ecc71; }
+    .other { align-self: flex-start; background: #3498db; }
+    .msg img {
+      max-width: 200px;
+      border-radius: 8px;
+      margin-top: 5px;
+    }
+    .msg a {
+      color: #ffeaa7;
+      text-decoration: underline;
+    }
+    .input-panel {
+      background: #1e1e1e;
+      padding: 8px;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .input-panel input[type="text"] {
+      flex: 1;
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
+      font-size: 15px;
+    }
+    .input-panel input[type="file"] {
+      display: none;
+    }
+    .icon-btn {
+      background: #00cec9;
+      color: white;
+      border: none;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .room-join {
+      padding: 10px;
+      background: #111;
+      text-align: center;
+    }
+    .room-join input {
+      padding: 8px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
+    }
+    .room-join button {
+      margin-left: 6px;
+      padding: 8px 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      background: #0984e3;
+      color: white;
+    }
+    #preview {
+      padding: 6px;
+      background: #222;
+      display: none;
+      text-align: center;
+    }
+    #preview img {
+      max-height: 150px;
+      border-radius: 8px;
+    }
+    #usersOnline {
+      background: #2c3e50;
+      padding: 4px;
+      font-size: 14px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
-  <div class="header">🔐 Secure Chat</div>
+
+  <header>🔐 Secure Chat</header>
+  <div id="roomStatus">Joined room: <span id="joinedRoomId"></span></div>
+  <div id="usersOnline">🟢 Active users: <span id="onlineCount">0</span></div>
 
   <div class="room-join" id="roomJoin">
-    <input type="text" id="roomInput" placeholder="Enter Room ID">
+    Room ID: <input id="roomInput" placeholder="Type room..." />
     <button onclick="joinRoom()">Join</button>
   </div>
 
-  <div class="room-status" id="roomStatus">
-    Room: <span id="joinedRoomId"></span> | Online: <span id="onlineCount">0</span>
+  <div id="chatBox"></div>
+
+  <div id="preview"></div>
+
+  <div class="input-panel">
+    <input type="text" id="msgInput" placeholder="Message..." />
+    <label for="fileInput" class="icon-btn">📎</label>
+    <input type="file" id="fileInput" onchange="previewMedia()" />
+    <button onclick="sendGIF()" class="icon-btn">🎞️</button>
+    <button onclick="sendMsg()" class="icon-btn">📤</button>
   </div>
-
-  <div class="chat-box" id="chatBox"></div>
-
-  <div class="input-area">
-    <div class="preview" id="preview"></div>
-    <input type="text" id="msgInput" placeholder="Type message...">
-    <input type="file" id="fileInput" onchange="previewMedia()">
-    <button onclick="sendMsg()">Send Text</button>
-    <button onclick="sendGIF()">Send GIF</button>
-  </div>
-
-  <div class="footer">Made with ❤️ by Kumar Pratik</div>
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script src="./script.js"></script>
+
 </body>
 </html>
