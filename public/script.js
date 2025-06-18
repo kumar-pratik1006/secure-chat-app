@@ -1,115 +1,77 @@
 // script.js
 const socket = io();
 let currentRoom = '';
-let userId = Math.random().toString(36).substring(2);
+
+const roomInput = document.getElementById('roomInput');
+const chatBox = document.getElementById('chatBox');
+const msgInput = document.getElementById('msgInput');
+const fileInput = document.getElementById('fileInput');
+const preview = document.getElementById('preview');
+const onlineCount = document.getElementById('onlineCount');
 
 function joinRoom() {
-  const room = document.getElementById('roomInput').value.trim();
-  if (!room) return;
-  currentRoom = room;
-  socket.emit('join-room', room);
-  document.getElementById('roomJoin').style.display = 'none';
+  currentRoom = roomInput.value.trim();
+  if (!currentRoom) return alert('Room ID required');
+  socket.emit('join-room', currentRoom);
+  document.getElementById('joinedRoomId').textContent = currentRoom;
   document.getElementById('roomStatus').style.display = 'block';
-  document.getElementById('joinedRoomId').innerText = room;
-  addSystemMsg('Joined room successfully ✅');
+  document.getElementById('roomJoin').style.display = 'none';
+}
+
+function appendMsg(msg, self = false) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + (self ? 'self' : 'other');
+  if (msg.type === 'text') {
+    div.textContent = msg.data;
+  } else if (msg.type === 'image') {
+    div.innerHTML = `<img src="${msg.data}" />`;
+  } else if (msg.type === 'file') {
+    div.innerHTML = `<a href="${msg.data}" target="_blank">Download File</a>`;
+  }
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 function sendMsg() {
-  const msg = document.getElementById('msgInput').value.trim();
-  const file = document.getElementById('fileInput').files[0];
-  if (!msg && !file) return;
-
-  let messageObj = { from: userId };
-
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function () {
-      const base64 = reader.result;
-      messageObj.file = { name: file.name, type: file.type, data: base64 };
-      emitAndShow(messageObj);
-    };
-    reader.readAsDataURL(file);
-  } else {
-    messageObj.text = msg;
-    emitAndShow(messageObj);
-  }
-  document.getElementById('msgInput').value = '';
-  document.getElementById('fileInput').value = '';
-  document.getElementById('preview').innerHTML = '';
-}
-
-function sendGIF() {
-  const url = prompt("Paste GIF URL:");
-  if (!url) return;
-  const messageObj = { from: userId, gif: url };
-  emitAndShow(messageObj);
-}
-
-function emitAndShow(messageObj) {
-  socket.emit('send-message', { room: currentRoom, message: messageObj });
-  addMsg(messageObj, true);
-}
-
-socket.on('receive-message', message => {
-  addMsg(message, false);
-});
-
-socket.on('update-users', count => {
-  document.getElementById('onlineCount').innerText = count;
-});
-
-function addMsg(message, self) {
-  const chatBox = document.getElementById('chatBox');
-  const msgDiv = document.createElement('div');
-  msgDiv.className = 'msg ' + (self ? 'self' : 'other');
-
-  if (message.text) msgDiv.textContent = message.text;
-  else if (message.file) {
-    if (message.file.type.startsWith('image')) {
-      const img = document.createElement('img');
-      img.src = message.file.data;
-      img.style.maxWidth = '200px';
-      msgDiv.appendChild(img);
-    } else {
-      const link = document.createElement('a');
-      link.href = message.file.data;
-      link.download = message.file.name;
-      link.textContent = `Download ${message.file.name}`;
-      msgDiv.appendChild(link);
-    }
-  } else if (message.gif) {
-    const gif = document.createElement('img');
-    gif.src = message.gif;
-    gif.style.maxWidth = '200px';
-    msgDiv.appendChild(gif);
-  }
-
-  chatBox.appendChild(msgDiv);
-  chatBox.scrollTop = chatBox.scrollHeight;
+  const text = msgInput.value.trim();
+  if (!text) return;
+  const msg = { type: 'text', data: text };
+  socket.emit('send-message', { room: currentRoom, message: msg });
+  appendMsg(msg, true);
+  msgInput.value = '';
+  preview.style.display = 'none';
 }
 
 function previewMedia() {
-  const file = document.getElementById('fileInput').files[0];
-  const preview = document.getElementById('preview');
-  preview.innerHTML = '';
-  if (file && file.type.startsWith('image')) {
-    const reader = new FileReader();
-    reader.onload = function () {
-      const img = document.createElement('img');
-      img.src = reader.result;
-      preview.appendChild(img);
-    };
-    reader.readAsDataURL(file);
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    let msg;
+    if (file.type.startsWith('image/')) {
+      msg = { type: 'image', data: reader.result };
+      preview.innerHTML = `<img src="${reader.result}" />`;
+    } else {
+      msg = { type: 'file', data: reader.result };
+      preview.innerHTML = `<p>${file.name}</p>`;
+    }
+    preview.style.display = 'block';
+
+    socket.emit('send-message', { room: currentRoom, message: msg });
+    appendMsg(msg, true);
+  };
+  reader.readAsDataURL(file);
+}
+
+function sendGIF() {
+  const gif = prompt("Enter GIF URL:");
+  if (gif) {
+    const msg = { type: 'image', data: gif };
+    socket.emit('send-message', { room: currentRoom, message: msg });
+    appendMsg(msg, true);
   }
 }
 
-function addSystemMsg(msg) {
-  const chatBox = document.getElementById('chatBox');
-  const sys = document.createElement('div');
-  sys.style.color = '#999';
-  sys.style.fontSize = '14px';
-  sys.style.textAlign = 'center';
-  sys.innerText = msg;
-  chatBox.appendChild(sys);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
+socket.on('receive-message', msg => appendMsg(msg));
+socket.on('update-users', count => onlineCount.textContent = count);
