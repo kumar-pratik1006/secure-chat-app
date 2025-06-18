@@ -89,3 +89,8 @@ socket.on('receive-message', data => {
   document.getElementById('chatBox').appendChild(msgDiv);
   document.getElementById('chatBox').scrollTop = document.getElementById('chatBox').scrollHeight;
 });
+
+// In your script.js (after room join)
+document.getElementById('roomJoin').style.display = 'none';
+document.getElementById('roomStatus').style.display = 'block';
+document.getElementById('joinedRoomId').textContent = room;
