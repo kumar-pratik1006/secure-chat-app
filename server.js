@@ -1,37 +1,30 @@
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const path = require('path');
 
-const app = express();
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: { origin: '*' }
+const socket = io();
+let room = '';
+
+function joinRoom() {
+  room = document.getElementById('room').value;
+  if (room.trim() === '') return;
+  socket.emit('join-room', room);
+  logMsg('✅ Joined room: ' + room);
+}
+
+function sendMsg() {
+  const msg = document.getElementById('msgInput').value;
+  if (msg.trim() === '') return;
+  socket.emit('send-message', { room, message: msg });
+  document.getElementById('msgInput').value = '';
+}
+
+socket.on('receive-message', ({ message, self }) => {
+  logMsg((self ? '🧍 You' : '👤 Stranger') + ': ' + message, self);
 });
 
-// Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
-
-let onlineUsers = 0;
-
-// Socket.io logic
-io.on('connection', socket => {
-  onlineUsers++;
-  io.emit('update-user-count', onlineUsers);
-
-  socket.on('join-room', room => {
-    socket.join(room);
-  });
-
-  socket.on('send-message', ({ room, message }) => {
-    io.to(room).emit('receive-message', message);
-  });
-
-  socket.on('disconnect', () => {
-    onlineUsers = Math.max(0, onlineUsers - 1);
-    io.emit('update-user-count', onlineUsers);
-  });
-});
-
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+function logMsg(msg, self = false) {
+  const box = document.getElementById('chatBox');
+  const div = document.createElement('div');
+  div.textContent = msg;
+  div.className = self ? 'msg-self' : 'msg-other';
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
