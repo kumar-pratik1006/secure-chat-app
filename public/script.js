@@ -1,4 +1,3 @@
-// script.js
 const socket = io();
 let currentRoom = '';
 
@@ -8,6 +7,13 @@ const msgInput = document.getElementById('msgInput');
 const fileInput = document.getElementById('fileInput');
 const preview = document.getElementById('preview');
 const onlineCount = document.getElementById('onlineCount');
+
+// 🔔 Ask for Notification Permission on Load
+if ('Notification' in window && Notification.permission !== 'granted') {
+  Notification.requestPermission().then(permission => {
+    console.log('🔔 Notification permission:', permission);
+  });
+}
 
 function joinRoom() {
   currentRoom = roomInput.value.trim();
@@ -64,5 +70,22 @@ function previewMedia() {
   reader.readAsDataURL(file);
 }
 
-socket.on('receive-message', msg => appendMsg(msg));
-socket.on('update-users', count => onlineCount.textContent = count);
+// 💬 Handle incoming messages + Notification
+socket.on('receive-message', msg => {
+  appendMsg(msg);
+
+  if (document.hidden && Notification.permission === 'granted') {
+    const bodyText = msg.data
+      ? (msg.type === 'text' ? msg.data : `[${msg.type}]`)
+      : '[New Message]';
+
+    new Notification('📨 New Message in Secure Chat', {
+      body: bodyText,
+      icon: 'https://cdn-icons-png.flaticon.com/512/561/561127.png' // optional
+    });
+  }
+});
+
+socket.on('update-users', count => {
+  onlineCount.textContent = count;
+});
