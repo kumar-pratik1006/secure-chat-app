@@ -75,3 +75,20 @@ socket.on('receive-message', msg => appendMsg(msg));
 
 // 👥 Online count update
 socket.on('update-users', count => onlineCount.textContent = count);
+
+function closePopup() {
+  document.getElementById('featurePopup').style.display = 'none';
+}
+
+window.addEventListener('load', () => {
+  if (localStorage.getItem('popupSeen')) {
+    document.getElementById('featurePopup').style.display = 'none';
+  } else {
+    document.getElementById('featurePopup').style.display = 'flex';
+  }
+});
+
+function closePopup() {
+  document.getElementById('featurePopup').style.display = 'none';
+  localStorage.setItem('popupSeen', 'true');
+}
