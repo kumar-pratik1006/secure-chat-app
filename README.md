@@ -18,6 +18,14 @@ A full-stack real-time chat application built with robust end-to-end encryption,
 | React         | Node.js + Express | JWT, AES       | MongoDB  |
 | Tailwind CSS  | Socket.IO         | HTTPS enabled  | Mongoose |
 
+## ⚠️ Disclaimer
+
+This application is provided **as-is** without any guarantees or warranties regarding its security or performance. While it includes encryption features aimed at protecting user privacy, the developer **does not take responsibility for any data breaches, vulnerabilities, or misuse** arising from the use of this application.
+
+> **Use at your own risk.** It is your responsibility to ensure that the deployment and usage of this software meet your privacy and legal requirements.
+
+By using this application, you acknowledge that the developer cannot be held liable for any issues, damages, or losses resulting from its use.
+
 ## 📸 Screenshots
 
 ![Screenshot_20250705-104639](https://github.com/user-attachments/assets/665d1922-d5ca-469b-97b6-215b026550a5)
