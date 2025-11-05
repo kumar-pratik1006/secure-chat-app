@@ -1,7 +1,7 @@
 {
   "name": "Secure Chat App",
   "short_name": "🔐 chat",
-  "start_url": "public/index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
