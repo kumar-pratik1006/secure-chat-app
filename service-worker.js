@@ -1,10 +1,8 @@
-const CACHE_NAME = 'devhihi-cache-v1';
+const CACHE_NAME = 'securechat-cache-v1';
 const urlsToCache = [
   './',
-  './index.html',
-  './style.css',
-  './script.js',
-  './main.js'
+  'public/index.html',
+  'public/script.js'
 ];
 
 self.addEventListener('install', event => {
