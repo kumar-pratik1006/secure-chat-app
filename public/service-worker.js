@@ -1,8 +1,8 @@
 const CACHE_NAME = 'securechat-cache-v1';
 const urlsToCache = [
   './',
-  'public/index.html',
-  'public/script.js'
+  './index.html',
+  './script.js'
 ];
 
 self.addEventListener('install', event => {
