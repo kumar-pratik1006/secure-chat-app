@@ -128,3 +128,39 @@ function closePopup() {
   document.getElementById('featurePopup').style.display = 'none';
   localStorage.setItem('popupSeen', 'true');
 }
+
+// Notification permission
+function requestNotificationPermission() {
+  if (!("Notification" in window)) {
+    alert("Browser does not support notifications");
+    return;
+  }
+
+  Notification.requestPermission().then(permission => {
+    if (permission === "granted") {
+      console.log("Notification permission granted");
+    }
+  });
+}
+
+// Call once when user opens the app
+requestNotificationPermission();
+
+
+// Function to show notification
+function showLocalNotification(title, body) {
+  if (Notification.permission === "granted") {
+    navigator.serviceWorker.getRegistration().then(reg => {
+      if (reg) {
+        reg.showNotification(title, {
+          body: body,
+          icon: "./icon.png",   // App ka icon yaha daal do
+          vibrate: [200, 100, 200],
+          badge: "./icon.png",
+          tag: "chat-msg",
+          renotify: true
+        });
+      }
+    });
+  }
+}
