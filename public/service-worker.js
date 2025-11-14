@@ -50,3 +50,21 @@ self.addEventListener('fetch', event => {
       .then(cached => cached || fetch(event.request))
   );
 });
+
+self.addEventListener("notificationclick", function (event) {
+  event.notification.close();
+
+  event.waitUntil(
+    clients.matchAll({ type: "window" }).then(clientList => {
+      for (let client of clientList) {
+        if (client.url.includes("/") && "focus" in client) {
+          return client.focus();
+        }
+      }
+
+      if (clients.openWindow) {
+        return clients.openWindow("/");
+      }
+    })
+  );
+});
